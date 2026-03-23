@@ -11,8 +11,15 @@ export class HomePage extends BasePage {
   }
 
   searchFor(term: string): SearchResultPage {
-    cy.get(this.searchIcon).click();
-    cy.get(this.searchField).clear().type(`${term}{enter}`);
+    // Activate slide-search dropdown via JS (headless-safe)
+    cy.get(this.searchIcon).then(($el) => {
+      const container = $el.closest('.ast-search-menu-icon');
+      container.addClass('ast-dropdown-active');
+      container.find('.search-field')
+        .css({ width: '235px', visibility: 'visible', display: 'block' });
+    });
+    cy.get(this.searchField).should('be.visible').clear().type(`${term}{enter}`);
+    cy.url().should('include', '?s=');
     return new SearchResultPage();
   }
 }
