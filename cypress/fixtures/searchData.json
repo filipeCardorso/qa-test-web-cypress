@@ -1,0 +1,6 @@
+{
+  "validTerm": "automação",
+  "invalidTerm": "xyznonexistent999",
+  "specialCharsTerm": "@#$%&",
+  "contentValidationTerm": "crédito"
+}
