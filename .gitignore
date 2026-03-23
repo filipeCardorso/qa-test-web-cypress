@@ -1,0 +1,7 @@
+node_modules/
+dist/
+cypress/videos/
+cypress/screenshots/
+allure-results/
+allure-report/
+.DS_Store
