@@ -3,7 +3,7 @@ import { allureCypress } from 'allure-cypress/reporter';
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'https://blogdoagi.com.br',
+    baseUrl: 'https://blog.agibank.com.br',
     viewportWidth: 1920,
     viewportHeight: 1080,
     defaultCommandTimeout: 15000,
