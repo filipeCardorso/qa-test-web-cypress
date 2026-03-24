@@ -6,7 +6,7 @@ Automação de testes para a pesquisa do Blog do Agi (https://blogdoagi.com.br/)
 
 | Tecnologia | Versão |
 |-----------|--------|
-| Cypress | 13.17.0 |
+| Cypress | 15.12.0 |
 | TypeScript | 5.7.0 |
 | Allure Report | 3.2.0 |
 | Node.js | 20+ |
