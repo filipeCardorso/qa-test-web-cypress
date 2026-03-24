@@ -1,102 +1,102 @@
 # QA Test - Web Automation (Cypress + TypeScript)
 
-Automacao de testes end-to-end para a funcionalidade de pesquisa do [Blog do Agi](https://blogdoagi.com.br/), desenvolvida como parte de um teste tecnico para QA. Este projeto complementa a versao em Selenium, demonstrando a mesma cobertura com uma abordagem moderna baseada em JavaScript.
+Automação de testes end-to-end para a funcionalidade de pesquisa do [Blog do Agi](https://blogdoagi.com.br/), desenvolvida como parte de um teste técnico para QA. Este projeto complementa a versão em Selenium, demonstrando a mesma cobertura com uma abordagem moderna baseada em JavaScript.
 
-## Sumario
+## Sumário
 
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Por Que Dois Projetos Web](#por-que-dois-projetos-web)
-- [Analise da Aplicacao](#analise-da-aplicacao)
-- [Cenarios de Teste](#cenarios-de-teste)
+- [Análise da Aplicação](#análise-da-aplicação)
+- [Cenários de Teste](#cenários-de-teste)
 - [Arquitetura e Design Patterns](#arquitetura-e-design-patterns)
-- [Stack Tecnologica](#stack-tecnologica)
+- [Stack Tecnológica](#stack-tecnológica)
 - [Estrutura do Projeto](#estrutura-do-projeto)
-- [Pre-requisitos](#pre-requisitos)
-- [Configuracao e Execucao](#configuracao-e-execucao)
+- [Pré-requisitos](#pré-requisitos)
+- [Configuração e Execução](#configuração-e-execução)
 - [CI/CD](#cicd)
-- [Relatorios](#relatorios)
-- [Decisoes Tecnicas](#decisoes-tecnicas)
+- [Relatórios](#relatórios)
+- [Decisões Técnicas](#decisões-técnicas)
 
 ---
 
 ## Sobre o Projeto
 
-Este projeto automatiza os cenarios mais relevantes da funcionalidade de pesquisa do Blog do Agi utilizando **Cypress com TypeScript**. A abordagem prioriza velocidade de execucao, retry automatico e uma DX (Developer Experience) superior com hot-reload e time-travel debugging.
+Este projeto automatiza os cenários mais relevantes da funcionalidade de pesquisa do Blog do Agi utilizando **Cypress com TypeScript**. A abordagem prioriza velocidade de execução, retry automático e uma DX (Developer Experience) superior com hot-reload e time-travel debugging.
 
 ## Por Que Dois Projetos Web
 
-A decisao de implementar a automacao Web em duas tecnologias diferentes (Selenium e Cypress) nao foi acidental:
+A decisão de implementar a automação Web em duas tecnologias diferentes (Selenium e Cypress) não foi acidental:
 
 | Aspecto | Selenium | Cypress |
 |---------|----------|---------|
 | **Abordagem** | Controla o browser externamente via WebDriver | Executa dentro do browser, acesso direto ao DOM |
-| **Linguagem** | Java (tipagem estatica, OOP) | TypeScript (tipagem estatica, funcional) |
-| **Velocidade** | Mais lento (comunicacao via HTTP) | Mais rapido (execucao in-browser) |
-| **Retry** | Manual via WebDriverWait | Nativo — retry automatico em queries |
+| **Linguagem** | Java (tipagem estática, OOP) | TypeScript (tipagem estática, funcional) |
+| **Velocidade** | Mais lento (comunicação via HTTP) | Mais rápido (execução in-browser) |
+| **Retry** | Manual via WebDriverWait | Nativo — retry automático em queries |
 | **Debugging** | Screenshots + logs | Time-travel, snapshots do DOM |
-| **Mercado** | Padrao corporativo, multi-browser real | Standard moderno, CI-first |
+| **Mercado** | Padrão corporativo, multi-browser real | Standard moderno, CI-first |
 
-Ambos cobrem os **mesmos 4 cenarios**, permitindo comparar abordagens e demonstrar versatilidade.
+Ambos cobrem os **mesmos 4 cenários**, permitindo comparar abordagens e demonstrar versatilidade.
 
-## Analise da Aplicacao
+## Análise da Aplicação
 
-O Blog do Agi e um site WordPress com o tema **Astra**. A funcionalidade de pesquisa segue o padrao WordPress:
+O Blog do Agi é um site WordPress com o tema **Astra**. A funcionalidade de pesquisa segue o padrão WordPress:
 
 - **URL original:** `https://blogdoagi.com.br/` (redireciona 301 para `https://blog.agibank.com.br/`)
-- **Mecanismo:** Icone de lupa (slide-search) no header que expande um campo de busca via CSS transition
-- **Comportamento:** Submissao do formulario redireciona para `?s={termo}` com resultados paginados
+- **Mecanismo:** Ícone de lupa (slide-search) no header que expande um campo de busca via CSS transition
+- **Comportamento:** Submissão do formulário redireciona para `?s={termo}` com resultados paginados
 
-### Desafio Tecnico: Slide-Search do Astra
+### Desafio Técnico: Slide-Search do Astra
 
-O tema Astra usa `visibility: hidden` e transicoes CSS para o campo de busca. O click nativo do Cypress no icone de busca nao ativa o dropdown de forma confiavel. A solucao adotada foi manipular o DOM via **jQuery** (disponivel nativamente no Cypress) para adicionar a classe `ast-dropdown-active` e tornar o campo visivel antes da interacao.
+O tema Astra usa `visibility: hidden` e transições CSS para o campo de busca. O click nativo do Cypress no ícone de busca não ativa o dropdown de forma confiável. A solução adotada foi manipular o DOM via **jQuery** (disponível nativamente no Cypress) para adicionar a classe `ast-dropdown-active` e tornar o campo visível antes da interação.
 
-### Erro JS da Aplicacao
+### Erro JS da Aplicação
 
-O site lanca um erro JavaScript (`astra is not defined`) que o Cypress intercepta por padrao, falhando o teste. Foi adicionado um handler `Cypress.on('uncaught:exception')` para ignorar erros da aplicacao que nao sao responsabilidade dos testes.
+O site lança um erro JavaScript (`astra is not defined`) que o Cypress intercepta por padrão, falhando o teste. Foi adicionado um handler `Cypress.on('uncaught:exception')` para ignorar erros da aplicação que não são responsabilidade dos testes.
 
-## Cenarios de Teste
+## Cenários de Teste
 
-### CT-001: Pesquisa com termo valido retorna resultados
-| Campo | Descricao |
+### CT-001: Pesquisa com termo válido retorna resultados
+| Campo | Descrição |
 |-------|-----------|
 | **Prioridade** | Alta |
-| **Dados** | Termo: "automacao" (via fixture) |
-| **Passos** | 1. Visitar a pagina inicial 2. Ativar o campo de busca 3. Digitar o termo e submeter |
-| **Resultado esperado** | Pelo menos 1 elemento `article` e renderizado na pagina |
-| **Por que e relevante** | Happy path — valida que o fluxo principal funciona end-to-end |
+| **Dados** | Termo: "automação" (via fixture) |
+| **Passos** | 1. Visitar a página inicial 2. Ativar o campo de busca 3. Digitar o termo e submeter |
+| **Resultado esperado** | Pelo menos 1 elemento `article` é renderizado na página |
+| **Por que é relevante** | Happy path — valida que o fluxo principal funciona end-to-end |
 
 ### CT-002: Pesquisa com termo inexistente exibe mensagem
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
 | **Prioridade** | Alta |
 | **Dados** | Termo: "xyznonexistent999" (via fixture) |
-| **Passos** | 1. Visitar a pagina inicial 2. Pesquisar pelo termo |
-| **Resultado esperado** | `hasNoResults()` retorna `true` e contagem de resultados e zero |
-| **Por que e relevante** | Cenario negativo — garante feedback claro ao usuario quando nenhum conteudo corresponde |
+| **Passos** | 1. Visitar a página inicial 2. Pesquisar pelo termo |
+| **Resultado esperado** | `hasNoResults()` retorna `true` e contagem de resultados é zero |
+| **Por que é relevante** | Cenário negativo — garante feedback claro ao usuário quando nenhum conteúdo corresponde |
 
-### CT-003: Pesquisa com caracteres especiais nao quebra
-| Campo | Descricao |
+### CT-003: Pesquisa com caracteres especiais não quebra
+| Campo | Descrição |
 |-------|-----------|
-| **Prioridade** | Media |
+| **Prioridade** | Média |
 | **Dados** | Termo: "@#$%&" (via fixture) |
-| **Passos** | 1. Visitar a pagina inicial 2. Pesquisar pelo termo |
-| **Resultado esperado** | A URL contem `?s=` (pagina de resultados carregou sem erro) |
-| **Por que e relevante** | Robustez — inputs inesperados nao devem causar erro 500 ou pagina quebrada |
+| **Passos** | 1. Visitar a página inicial 2. Pesquisar pelo termo |
+| **Resultado esperado** | A URL contém `?s=` (página de resultados carregou sem erro) |
+| **Por que é relevante** | Robustez — inputs inesperados não devem causar erro 500 ou página quebrada |
 
-### CT-004: Resultado contem titulo e link coerentes com o termo
-| Campo | Descricao |
+### CT-004: Resultado contém título e link coerentes com o termo
+| Campo | Descrição |
 |-------|-----------|
 | **Prioridade** | Alta |
-| **Dados** | Termo: "credito" (via fixture) |
-| **Passos** | 1. Visitar a pagina inicial 2. Pesquisar pelo termo 3. Verificar o primeiro resultado |
-| **Resultado esperado** | O texto do titulo contem "credito" (case-insensitive) e o atributo `href` nao esta vazio |
-| **Por que e relevante** | Relevancia — valida que o mecanismo de busca retorna conteudo pertinente, nao apenas qualquer resultado |
+| **Dados** | Termo: "crédito" (via fixture) |
+| **Passos** | 1. Visitar a página inicial 2. Pesquisar pelo termo 3. Verificar o primeiro resultado |
+| **Resultado esperado** | O texto do título contém "crédito" (case-insensitive) e o atributo `href` não está vazio |
+| **Por que é relevante** | Relevância — valida que o mecanismo de busca retorna conteúdo pertinente, não apenas qualquer resultado |
 
 ## Arquitetura e Design Patterns
 
 ### Page Object Model (POM) — Adaptado ao Cypress
 
-Diferente do Selenium onde Page Objects retornam `WebElement`, no Cypress os Page Objects retornam **Chainable commands** que respeitam a natureza assincrona do framework.
+Diferente do Selenium onde Page Objects retornam `WebElement`, no Cypress os Page Objects retornam **Chainable commands** que respeitam a natureza assíncrona do framework.
 
 ```
 BasePage
@@ -104,11 +104,11 @@ BasePage
   └── SearchResultPage   → getResults(), hasNoResults(), getFirstResultTitle()
 ```
 
-**Por que POM no Cypress:** apesar de haver debate na comunidade sobre POM em Cypress (vs. Custom Commands puros), a abordagem POM mantem consistencia com o projeto Selenium e encapsula seletores em um unico lugar.
+**Por que POM no Cypress:** apesar de haver debate na comunidade sobre POM em Cypress (vs. Custom Commands puros), a abordagem POM mantém consistência com o projeto Selenium e encapsula seletores em um único lugar.
 
 ### Custom Commands
 
-O comando `cy.search(term)` encapsula toda a logica de ativacao do dropdown + digitacao + submissao. Pode ser usado como alternativa ao Page Object quando se quer uma abordagem mais "Cypress-nativa".
+O comando `cy.search(term)` encapsula toda a lógica de ativação do dropdown + digitação + submissão. Pode ser usado como alternativa ao Page Object quando se quer uma abordagem mais "Cypress-nativa".
 
 ```typescript
 Cypress.Commands.add('search', (term: string) => {
@@ -122,22 +122,22 @@ Cypress.Commands.add('search', (term: string) => {
 
 ### Fixtures / Data-Driven Testing
 
-Os termos de busca sao externalizados em `cypress/fixtures/searchData.json`:
+Os termos de busca são externalizados em `cypress/fixtures/searchData.json`:
 
 ```json
 {
-  "validTerm": "automacao",
+  "validTerm": "automação",
   "invalidTerm": "xyznonexistent999",
   "specialCharsTerm": "@#$%&",
-  "contentValidationTerm": "credito"
+  "contentValidationTerm": "crédito"
 }
 ```
 
-**Por que:** separar dados de teste do codigo permite alterar cenarios sem modificar os testes, facilita manutencao e permite reutilizar dados em diferentes specs.
+**Por que:** separar dados de teste do código permite alterar cenários sem modificar os testes, facilita manutenção e permite reutilizar dados em diferentes specs.
 
-### Padrao AAA (Arrange-Act-Assert)
+### Padrão AAA (Arrange-Act-Assert)
 
-Mesmo padrao do projeto Selenium, adaptado a sintaxe do Cypress:
+Mesmo padrão do projeto Selenium, adaptado à sintaxe do Cypress:
 
 ```typescript
 it('should return results for valid search term', () => {
@@ -154,42 +154,42 @@ it('should return results for valid search term', () => {
 
 ### Retry-ability Nativo
 
-Diferente do Selenium onde e necessario implementar `WebDriverWait` manualmente, o Cypress re-executa automaticamente queries de DOM ate que a asseracao passe ou o timeout expire. Isso resulta em testes mais estaveis sem codigo extra.
+Diferente do Selenium onde é necessário implementar `WebDriverWait` manualmente, o Cypress re-executa automaticamente queries de DOM até que a asserção passe ou o timeout expire. Isso resulta em testes mais estáveis sem código extra.
 
-Configuracao em `cypress.config.ts`:
+Configuração em `cypress.config.ts`:
 ```typescript
 retries: {
-  runMode: 2,   // CI — retenta ate 2 vezes
+  runMode: 2,   // CI — retenta até 2 vezes
   openMode: 0,  // Local — sem retry para debugging
 }
 ```
 
-## Stack Tecnologica
+## Stack Tecnológica
 
-| Tecnologia | Versao | Justificativa |
+| Tecnologia | Versão | Justificativa |
 |-----------|--------|---------------|
-| Cypress | 15.12.0 | Framework moderno, execucao in-browser, retry nativo, time-travel debug |
-| TypeScript | 5.7.0 | Tipagem estatica, autocomplete, prevencao de erros em tempo de compilacao |
-| Allure Report | 3.2.0 | Relatorios visuais consistentes com o projeto Selenium |
-| Node.js | 20+ | Runtime LTS, compativel com Cypress 15 |
+| Cypress | 15.12.0 | Framework moderno, execução in-browser, retry nativo, time-travel debug |
+| TypeScript | 5.7.0 | Tipagem estática, autocomplete, prevenção de erros em tempo de compilação |
+| Allure Report | 3.2.0 | Relatórios visuais consistentes com o projeto Selenium |
+| Node.js | 20+ | Runtime LTS, compatível com Cypress 15 |
 
 ## Estrutura do Projeto
 
 ```
 qa-test-web-cypress/
 ├── .github/workflows/test.yml          # Pipeline CI/CD
-├── cypress.config.ts                   # Configuracao do Cypress (base URL, timeouts, retries)
-├── package.json                        # Dependencias e scripts npm
-├── tsconfig.json                       # Configuracao TypeScript
+├── cypress.config.ts                   # Configuração do Cypress (base URL, timeouts, retries)
+├── package.json                        # Dependências e scripts npm
+├── tsconfig.json                       # Configuração TypeScript
 ├── cypress/
 │   ├── e2e/
-│   │   └── search.cy.ts               # 4 cenarios de teste (AAA pattern)
+│   │   └── search.cy.ts               # 4 cenários de teste (padrão AAA)
 │   ├── fixtures/
 │   │   └── searchData.json            # Dados de teste externalizados
 │   ├── pages/
 │   │   ├── BasePage.ts                # Classe base — title, URL
-│   │   ├── HomePage.ts               # Page Object — navegacao + pesquisa
-│   │   └── SearchResultPage.ts       # Page Object — verificacoes de resultado
+│   │   ├── HomePage.ts               # Page Object — navegação + pesquisa
+│   │   └── SearchResultPage.ts       # Page Object — verificações de resultado
 │   ├── support/
 │   │   ├── commands.ts               # Custom command cy.search()
 │   │   ├── e2e.ts                    # Setup global + uncaught exception handler
@@ -199,20 +199,20 @@ qa-test-web-cypress/
 └── README.md
 ```
 
-## Pre-requisitos
+## Pré-requisitos
 
 - **Node.js 20+** — [Download](https://nodejs.org/)
 - **Google Chrome** — [Download](https://www.google.com/chrome/)
 - **Git** — [Download](https://git-scm.com/)
 
-## Configuracao e Execucao
+## Configuração e Execução
 
 ```bash
-# 1. Clonar o repositorio
+# 1. Clonar o repositório
 git clone https://github.com/filipeCardorso/qa-test-web-cypress.git
 cd qa-test-web-cypress
 
-# 2. Instalar dependencias
+# 2. Instalar dependências
 npm install
 
 # 3. Executar testes (headless)
@@ -224,55 +224,55 @@ npm run cy:open
 # 5. Executar testes (headed — abre o browser)
 npm run cy:run:headed
 
-# 6. Gerar relatorio Allure
+# 6. Gerar relatório Allure
 npm run allure:generate
 
-# 7. Abrir relatorio no browser
+# 7. Abrir relatório no browser
 npm run allure:open
 ```
 
-### Scripts Disponiveis
+### Scripts Disponíveis
 
-| Script | Comando | Descricao |
+| Script | Comando | Descrição |
 |--------|---------|-----------|
-| `npm test` | `cypress run --browser chrome` | Execucao headless (CI) |
+| `npm test` | `cypress run --browser chrome` | Execução headless (CI) |
 | `npm run cy:open` | `cypress open` | Modo interativo com UI |
-| `npm run cy:run:headed` | `cypress run --browser chrome --headed` | Execucao com browser visivel |
-| `npm run allure:generate` | `allure generate ...` | Gera relatorio HTML |
-| `npm run allure:open` | `allure open ...` | Abre relatorio no browser |
+| `npm run cy:run:headed` | `cypress run --browser chrome --headed` | Execução com browser visível |
+| `npm run allure:generate` | `allure generate ...` | Gera relatório HTML |
+| `npm run allure:open` | `allure open ...` | Abre relatório no browser |
 
 ## CI/CD
 
 O projeto possui pipeline **GitHub Actions** que executa automaticamente a cada push ou pull request:
 
-1. **Setup:** Configura Node.js 20 e instala dependencias via `npm ci`
+1. **Setup:** Configura Node.js 20 e instala dependências via `npm ci`
 2. **Testes:** Executa Cypress em Chrome headless via `cypress-io/github-action`
-3. **Relatorio de Resultados:** Publica graficos com contagem de testes no Summary da pipeline (JUnit XML reporter)
+3. **Relatório de Resultados:** Publica gráficos com contagem de testes no Summary da pipeline (JUnit XML reporter)
 4. **Allure Report:** Gera e publica em GitHub Pages
 5. **Screenshots:** Em caso de falha, salva screenshots como artifact para debugging
 
-### Relatorio Online
+### Relatório Online
 
-Apos cada execucao, o Allure Report fica disponivel em:
+Após cada execução, o Allure Report fica disponível em:
 **https://filipecardorso.github.io/qa-test-web-cypress/allure-report**
 
-## Relatorios
+## Relatórios
 
 | Tipo | Onde Encontrar | O Que Mostra |
 |------|---------------|-------------|
-| **Terminal** | Output do `npm test` | Tabela com specs, testes passed/failed, duracao |
-| **Pipeline Summary** | GitHub Actions > run > Summary | Graficos com total de testes, taxa de sucesso |
-| **Allure Report** | GitHub Pages ou `npm run allure:open` | Cenarios detalhados, steps, screenshots em falha |
+| **Terminal** | Output do `npm test` | Tabela com specs, testes passed/failed, duração |
+| **Pipeline Summary** | GitHub Actions > run > Summary | Gráficos com total de testes, taxa de sucesso |
+| **Allure Report** | GitHub Pages ou `npm run allure:open` | Cenários detalhados, steps, screenshots em falha |
 
-## Decisoes Tecnicas
+## Decisões Técnicas
 
-| Decisao | Alternativa | Justificativa |
+| Decisão | Alternativa | Justificativa |
 |---------|------------|---------------|
-| Cypress 15 sobre 13 | Cypress 13.17 | Compatibilidade com Chrome 146+ (IPC error no v13) |
-| TypeScript sobre JavaScript | JavaScript | Tipagem estatica, autocomplete, prevencao de erros |
-| POM sobre Custom Commands puros | Apenas Custom Commands | Consistencia com projeto Selenium, encapsulamento de seletores |
-| Fixtures sobre hardcoded | Dados inline | Separacao de responsabilidades, facilidade de manutencao |
-| jQuery DOM manipulation | `{force: true}` | Solucao mais robusta que simula o comportamento real do dropdown |
-| `uncaught:exception` handler | Nenhum | Erros JS do tema Astra nao sao responsabilidade dos testes |
-| URL base `blog.agibank.com.br` | `blogdoagi.com.br` | Evita redirect 301 que adiciona latencia |
-| JUnit reporter | Default reporter | Gera XML compativel com ferramentas de CI para graficos no pipeline |
+| Cypress 15 sobre 13 | Cypress 13.17 | Compatibilidade com Chrome 146+ (erro IPC no v13) |
+| TypeScript sobre JavaScript | JavaScript | Tipagem estática, autocomplete, prevenção de erros |
+| POM sobre Custom Commands puros | Apenas Custom Commands | Consistência com projeto Selenium, encapsulamento de seletores |
+| Fixtures sobre hardcoded | Dados inline | Separação de responsabilidades, facilidade de manutenção |
+| jQuery DOM manipulation | `{force: true}` | Solução mais robusta que simula o comportamento real do dropdown |
+| `uncaught:exception` handler | Nenhum | Erros JS do tema Astra não são responsabilidade dos testes |
+| URL base `blog.agibank.com.br` | `blogdoagi.com.br` | Evita redirect 301 que adiciona latência |
+| JUnit reporter | Default reporter | Gera XML compatível com ferramentas de CI para gráficos no pipeline |
