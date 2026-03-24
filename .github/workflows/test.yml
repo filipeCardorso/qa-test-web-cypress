@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   checks: write
+  pull-requests: write
   pages: write
   id-token: write
 
@@ -32,6 +33,15 @@ jobs:
         with:
           browser: chrome
           install: false
+          config: video=false
+
+      - name: Publish Test Results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: cypress/results/**/*.xml
+          check_name: Test Results
+          comment_mode: always
 
       - name: Generate Allure Report
         if: always()

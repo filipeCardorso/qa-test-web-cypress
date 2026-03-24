@@ -17,4 +17,9 @@ export default defineConfig({
       return config;
     },
   },
+  reporter: 'junit',
+  reporterOptions: {
+    mochaFile: 'cypress/results/results-[hash].xml',
+    toConsole: true,
+  },
 });
