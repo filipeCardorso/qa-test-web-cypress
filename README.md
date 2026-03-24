@@ -248,7 +248,7 @@ O projeto possui pipeline **GitHub Actions** que executa automaticamente a cada 
 1. **Setup:** Configura Node.js 20 e instala dependências via `npm ci`
 2. **Testes:** Executa Cypress em Chrome headless via `cypress-io/github-action`
 3. **Relatório de Resultados:** Publica gráficos com contagem de testes no Summary da pipeline (JUnit XML reporter)
-4. **Allure Report:** Gera e publica em GitHub Pages
+4. **Allure Report:** Gera relatório e salva como artifact
 5. **Screenshots:** Em caso de falha, salva screenshots como artifact para debugging
 
 ## Relatórios
@@ -257,7 +257,7 @@ O projeto possui pipeline **GitHub Actions** que executa automaticamente a cada 
 |------|---------------|-------------|
 | **Terminal** | Output do `npm test` | Tabela com specs, testes passed/failed, duração |
 | **Pipeline Summary** | GitHub Actions > run > Summary | Gráficos com total de testes, taxa de sucesso |
-| **Allure Report** | GitHub Pages ou `npm run allure:open` | Cenários detalhados, steps, screenshots em falha |
+| **Allure Report** | Artifact no GitHub Actions ou `npm run allure:open` | Cenários detalhados, steps, screenshots em falha |
 
 ## Decisões Técnicas
 
