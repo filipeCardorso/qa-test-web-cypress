@@ -1,3 +1,9 @@
+![Cypress](https://img.shields.io/badge/Cypress-69D3A7?style=flat-square&logo=cypress&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Allure](https://img.shields.io/badge/Allure_Report-FF5722?style=flat-square&logo=allure&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js_20-339933?style=flat-square&logo=node.js&logoColor=white)
+
 # QA Test - Web Automation (Cypress + TypeScript)
 
 Automação de testes end-to-end para a funcionalidade de pesquisa do [Blog do Agi](https://blogdoagi.com.br/), desenvolvida como parte de um teste técnico para QA. Este projeto complementa a versão em Selenium, demonstrando a mesma cobertura com uma abordagem moderna baseada em JavaScript.
